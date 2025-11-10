@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { signUpSchema } from "@/schemas/auth";
-
+import { authClient } from "@/lib/auth";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -20,12 +20,9 @@ import {
 
 import { useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export const SignUpForm = () => {
-  const [name, setName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -35,8 +32,28 @@ export const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof signUpSchema>) {
-    
+  async function onSubmit(values: z.infer<typeof signUpSchema>) {
+    try {
+      const { data, error } = await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        callbackURL: "http://localhost:3001/dashboard",
+      });
+
+      if (error) {
+        toast.error(
+          "Sign up failed. But don't fret lets give it another shot."
+        );
+        form.reset();
+      } else {
+        console.log(data);
+        toast.success("Signed up. Lets go.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
     console.log(values);
   }
 
@@ -89,11 +106,16 @@ export const SignUpForm = () => {
         />
 
         <Link href="/auth/signin">
-        <p className="text-neutral-400 text-sm underline underline-offset-4 my-3">Already have a account?</p>
+          <p className="text-neutral-400 text-sm underline underline-offset-4 my-3">
+            Already have a account?
+          </p>
         </Link>
 
-        <Button className="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border hover:border-black border-neutral-400" type="submit">
-            Submit
+        <Button
+          className="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border hover:border-black border-neutral-400"
+          type="submit"
+        >
+          Submit
         </Button>
       </form>
     </Form>

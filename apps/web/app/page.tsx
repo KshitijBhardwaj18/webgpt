@@ -16,7 +16,7 @@ export default function Home() {
           </Button>
         </Link>
 
-        <Link href="signup">
+        <Link href="/auth/signup">
           <Button className="px-2 hover:bg-black hover:text-white text-black border border-neutral-400 shadow-2xl bg-white">
             Sign In
           </Button>

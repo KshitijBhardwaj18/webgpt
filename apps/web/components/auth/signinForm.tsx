@@ -20,12 +20,18 @@ import {
   FormMessage,
 } from "../ui/form";
 
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth";
 
 export const SignInForm = () => {
   const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -35,8 +41,25 @@ export const SignInForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof signInSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof signInSchema>) {
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        toast.error("Failed to sigin. But you should not give up.");
+        console.log(error);
+      } else {
+        toast.success("logged in");
+        console.log(data);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Internal server error");
+    }
   }
 
   return (
