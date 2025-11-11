@@ -13,3 +13,14 @@ export interface CreateChabotRequest {
   description?: string;
   settings?: ChatbotSettings;
 }
+
+export interface GetUserChatbotsRequest{
+    projectId:string
+}
+
+export interface ChatbotUpdateRequest {
+  name: string;
+  projectId: string;
+  description?: string;
+  settings?: ChatbotSettings;
+}

@@ -5,7 +5,7 @@ import { toNodeHandler } from "better-auth/node";
 
 import cors from "cors";
 
-import ChabotRouter from "./routes/chatbot.routes";
+import ChabotRouter from "./routes/chatbots.routes";
 import { requireAuth } from "./middleware/auth";
 
 
