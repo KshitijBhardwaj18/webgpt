@@ -88,10 +88,22 @@ model Chatbot {
   updatedAt    DateTime  @updatedAt
 
   project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+ 
+}
+
+enum DataSourceStatus {
+  PENDING 
+  PROCESSED
+  EMBEDDED
+  FAILED
 }
 
 enum DataSourceType {
   TEXTSNIPPET
+  QNA
+  FILE
+  WEBSITE
 }
 
 model DataSource {
@@ -103,6 +115,12 @@ model DataSource {
   dataSourceType  DataSourceType
 
   name String?
+
+  content Json?
+  metadata Json?
+
+  status DataSourceStatus @default(PENDING)
+  error  String?
 
   embeddings Embedding[]
   
@@ -116,7 +134,7 @@ model Embedding {
   dataSource DataSource @relation(fields: [dataSourceId], references: [id])
 
   content String
-  vector Unsupported("vector(1536)")?
+  vector Unsupported("vector(768)")?
   createdAt    DateTime   @default(now())
 }
 

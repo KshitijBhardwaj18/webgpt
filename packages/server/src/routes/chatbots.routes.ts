@@ -8,8 +8,11 @@ import {
 import { prisma } from "../lib/db";
 import { Request, Response } from "express";
 import { success } from "better-auth/*";
+import { CreateTextSnippetDataSource } from "../interfaces/dataSources";
 
 const router = Router();
+
+/// Chatbot routes
 
 router.get("/", requireAuth, async (req: Request, res: Response) => {
   try {
@@ -122,7 +125,7 @@ router.get(
         .status(201)
         .json({ success: "Chatbot fetched", data: chatbot });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 );
@@ -204,6 +207,42 @@ router.delete(
       if (!chatbot) {
         res.status(404).json({ error: "failed to delete chatbot" });
       }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+// Data sources routes
+
+router.post(
+  "/:chatbotId/datasources",
+  requireAuth,
+  async (req: Request<{ chatbotId: string }>, res: Response) => {
+    const chatbotId = req.params.chatbotId;
+    const data: CreateTextSnippetDataSource = req.body;
+
+    try {
+      const project = await prisma.project.findFirst({
+        where: {
+          id: data.projectId,
+        },
+      });
+
+      if (!project) {
+        return res
+          .status(404)
+          .json({ error: "Project not found or access. denied." });
+      }
+
+      const dataSource = await prisma.dataSource.create({
+        data: {
+          content: data.content,
+          metadata: data.metadata,
+          dataSourceType: data.dataSourceType,
+          chatbotId: chatbotId,
+        },
+      });
     } catch (error) {
       console.log(error);
     }
