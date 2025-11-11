@@ -79,7 +79,7 @@ model Chatbot {
   name        String
   description  String?
   clientId     String  @unique @default(uuid())
-  settings     Json      
+  settings     Json?      
   isActive     Boolean   @default(true)
 
   dataSources  DataSource[]

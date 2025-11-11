@@ -6,6 +6,8 @@ import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 
 import ChabotRouter from "./routes/chatbot.routes";
+import { requireAuth } from "./middleware/auth";
+
 
 const app = express();
 
@@ -22,7 +24,7 @@ app.get("/", (req, res) => {
 
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 
-app.use("/chatbot", ChabotRouter);
+app.use("/chatbots", ChabotRouter);
 
 const port = process.env.PORT || 4000;
 
