@@ -23,10 +23,103 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+  
+  memberships   Membership[]
 
   @@unique([email])
   @@map("user")
 }
+
+enum Role {
+   OWNER
+   MEMBER
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role      @default(OWNER)
+
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+} 
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  chatbots    Chatbot[]
+}
+
+model Workspace {
+  id        String        @id @default(cuid())
+  name      String
+  slug      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  memberships Membership[]
+  projects    Project[]
+}
+
+model Chatbot {
+  id           String    @id @default(cuid())
+  projectId    String
+  name        String
+  description  String?
+  clientId     String  @unique @default(uuid())
+  settings     Json      
+  isActive     Boolean   @default(true)
+
+  dataSources  DataSource[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum DataSourceType {
+  TEXTSNIPPET
+}
+
+model DataSource {
+  id  String @id @default(cuid())
+
+  chatbotId String
+  chatbot   Chatbot @relation(fields: [chatbotId], references: [id])
+
+  dataSourceType  DataSourceType
+
+  name String?
+
+  embeddings Embedding[]
+  
+  createdAt DateTime @default(now())
+}
+
+model Embedding {
+  id String @id @default(cuid())
+
+  dataSourceId String
+  dataSource DataSource @relation(fields: [dataSourceId], references: [id])
+
+  content String
+  vector Unsupported("vector(1536)")?
+  createdAt    DateTime   @default(now())
+}
+
 
 model Session {
   id        String   @id
