@@ -94,7 +94,7 @@ model Chatbot {
 
 enum DataSourceStatus {
   PENDING 
-  PROCESSED
+  PROCESSING
   EMBEDDED
   FAILED
 }
@@ -120,11 +120,12 @@ model DataSource {
   metadata Json?
 
   status DataSourceStatus @default(PENDING)
-  error  String?
+  errorMessage  String?
 
   embeddings Embedding[]
   
   createdAt DateTime @default(now())
+  processedAt DateTime?
 }
 
 model Embedding {
